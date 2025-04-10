@@ -1,6 +1,7 @@
-import pydantic.dataclasses
-from datetime import datetime, timezone
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+
+import pydantic.dataclasses
 
 
 @dataclass(frozen=True)
