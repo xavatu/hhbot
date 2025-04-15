@@ -1,52 +1,36 @@
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+import datetime
 
-import pydantic.dataclasses
+from pydantic import BaseModel, ConfigDict
 
 
-@dataclass(frozen=True)
-class ClientBase:
+class ClientBase(BaseModel):
+    model_config = ConfigDict(frozen=True)
     client_id: str
     client_secret: str
 
 
-@dataclass(frozen=True)
 class AuthorizedClient(ClientBase):
     code: str
 
 
-@dataclass(frozen=True)
-class ClientToken:
+class ClientToken(BaseModel):
+    model_config = ConfigDict(frozen=True)
     access_token: str
     token_type: str
     refresh_token: str
     expires_in: int
-    created_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    expires_at: int
 
     @property
-    def is_expired(self) -> bool:
-        elapsed_time = (
-            datetime.now(timezone.utc) - self.created_at
-        ).total_seconds()
-        return self.expires_in - elapsed_time < 0
+    def is_expired(self):
+        return self.expires_at < int(
+            datetime.datetime.now(datetime.UTC).timestamp()
+        )
 
 
-@dataclass(frozen=True)
 class ClientSession(AuthorizedClient):
     token: ClientToken
 
     @property
     def is_expired(self) -> bool:
         return self.token.is_expired
-
-
-@pydantic.dataclasses.dataclass(frozen=True)
-class AuthorizedClientSchema(AuthorizedClient):
-    ...
-
-
-@pydantic.dataclasses.dataclass(frozen=True)
-class ClientTokenSchema(ClientToken):
-    ...

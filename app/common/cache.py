@@ -62,15 +62,3 @@ class RedisCache:
     def is_expired(self, key: str) -> bool:
         ttl = self._client.ttl(key)
         return ttl == -2
-
-
-# @memoize(DummyCache())
-# def expensive_function(a: int, b: int) -> int:
-#     print("Вычисление результата...")
-#     return a + b
-#
-#
-# print(expensive_function(5, 10))  # Сначала вычисление
-# print(expensive_function(5, 10))  # Возьмем из кеша
-# print(expensive_function(10, 15))  # Сначала вычисление для новых аргументов
-# print(expensive_function(5, 10))  # Снова возьмем из кеша

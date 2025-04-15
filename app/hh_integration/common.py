@@ -1,12 +1,8 @@
-from enum import Enum, StrEnum
+from enum import StrEnum
 
 
-class HH_URLS(StrEnum):
+class HHUrls(StrEnum):
     BASE = "https://hh.ru/"
     AUTHORIZE = "https://hh.ru/oauth/authorize"
     TOKEN = "https://hh.ru/oauth/token"
     RESUMES = "https://api.hh.ru/resumes/mine"
-
-
-class HH_PARAMS(Enum):
-    ACCESS_TOKEN_TTL = 10
