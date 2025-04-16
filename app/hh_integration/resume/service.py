@@ -15,7 +15,25 @@ async def get_resumes(
     http_session: aiohttp.ClientSession = Depends(get_http_session),
 ):
     result = await http_session.get(
-        HHUrls.RESUMES,
+        HHUrls.RESUMES + "/mine",
+        headers={
+            "Authorization": f"Bearer {client_session.token.access_token}"
+        },
+    )
+    if not result.ok:
+        result.raise_for_status()
+    result_json = await result.json()
+    return result_json
+
+
+@resume_router.get("/{resume_id}/similar_vacancies")
+async def get_similar_vacancies(
+    resume_id: str,
+    client_session: ClientSession = Depends(get_client_session),
+    http_session: aiohttp.ClientSession = Depends(get_http_session),
+):
+    result = await http_session.get(
+        HHUrls.RESUMES + f"/{resume_id}/similar_vacancies",
         headers={
             "Authorization": f"Bearer {client_session.token.access_token}"
         },

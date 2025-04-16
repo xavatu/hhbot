@@ -5,4 +5,4 @@ class HHUrls(StrEnum):
     BASE = "https://hh.ru/"
     AUTHORIZE = "https://hh.ru/oauth/authorize"
     TOKEN = "https://hh.ru/oauth/token"
-    RESUMES = "https://api.hh.ru/resumes/mine"
+    RESUMES = "https://api.hh.ru/resumes"
