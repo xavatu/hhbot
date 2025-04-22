@@ -5,7 +5,7 @@ from app.common.http_session import get_http_session
 from app.hh_integration.client.oauth import get_client_session
 from app.hh_integration.client.schemas import ClientSession
 from app.hh_integration.common import HHUrls
-from app.hh_integration.negotiation.schema import Negotiation
+from app.hh_integration.negotiation.schemas import Negotiation
 
 negotiation_router = APIRouter(prefix="/negotiations", tags=["negotiation"])
 
