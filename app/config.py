@@ -9,7 +9,7 @@ host = os.getenv("API_HOST", "localhost")
 port = os.getenv("API_PORT", "8000")
 secret_key = os.getenv("SECRET_KEY", "secret-string")
 port = int(port)
-app_title = "HHBOR"
+app_title = "HHBOT"
 app_version = "0.0"
 
 app = FastAPI(title=app_title)
