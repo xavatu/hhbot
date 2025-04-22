@@ -12,7 +12,7 @@ from app.hh_integration.common import HHUrls
 resume_router = APIRouter(prefix="/resumes", tags=["resume"])
 
 
-@resume_router.get("")
+@resume_router.get("/mine")
 async def get_resumes(
     client_session: ClientSession = Depends(get_client_session),
     http_session: aiohttp.ClientSession = Depends(get_http_session),
