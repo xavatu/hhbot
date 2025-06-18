@@ -52,7 +52,7 @@ async def auto_apply(
     return success_count
 
 
-@auto_apply_router.post("/")
+@auto_apply_router.post("")
 async def run_auto_apply(
     resume_id: str,
     extra_params: dict,
