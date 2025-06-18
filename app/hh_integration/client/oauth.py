@@ -44,9 +44,17 @@ async def auth_callback(request: Request):
         token=client_token,
     ).model_dump()
 
+    response = RedirectResponse(url="/docs")
+    response.set_cookie(
+        key="client_id",
+        value=request.session["client_creds"]["client_id"],
+        max_age=86400,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+    )
     del request.session["client_creds"]
-
-    return RedirectResponse(url="/docs")
+    return response
 
 
 @oauth_router.get("")
