@@ -37,7 +37,7 @@ class Session(Base, TableNameMixin):
     )
     user_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("users.client_id", ondelete="CASCADE"),
+        ForeignKey("user.client_id", ondelete="CASCADE"),
         nullable=False,
     )
     session: Mapped[str] = mapped_column(Text, nullable=False)

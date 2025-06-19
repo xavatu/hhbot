@@ -13,6 +13,6 @@ class Resume(Base, TableNameMixin):
     resume_id: Mapped[str] = mapped_column(String, primary_key=True)
     user_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("users.client_id", ondelete="CASCADE"),
+        ForeignKey("user.client_id", ondelete="CASCADE"),
         nullable=False,
     )

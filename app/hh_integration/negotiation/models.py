@@ -25,19 +25,19 @@ class AutoApplyConfig(Base, TableNameMixin):
     )
     user_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("users.client_id", ondelete="CASCADE"),
+        ForeignKey("user.client_id", ondelete="CASCADE"),
         nullable=False,
     )
     resume_id: Mapped[str] = mapped_column(
         String,
-        ForeignKey("resumes.resume_id", ondelete="CASCADE"),
+        ForeignKey("resume.resume_id", ondelete="CASCADE"),
         nullable=False,
     )
     session_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("session.id", ondelete="CASCADE"), nullable=False
     )
     filter_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("filters.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("filter.id", ondelete="CASCADE"), nullable=False
     )
     enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     max_applications: Mapped[int] = mapped_column(
