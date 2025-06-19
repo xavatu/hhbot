@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  hh-service:
+    image: hh-service:latest
+    volumes:
+      - ./shared_utils:/app/shared_utils
+      - ./db:/app/db
+      - ./hh_service:/app/hh_service
+    ports:
+      - "8000:8000"
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 8000

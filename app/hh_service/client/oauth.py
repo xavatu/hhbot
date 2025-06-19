@@ -2,8 +2,8 @@ from authlib.integrations.starlette_client import OAuth
 from fastapi import Request, APIRouter, HTTPException, Depends
 from starlette.responses import RedirectResponse
 
-from app.hh_integration.client.schemas import ClientSession, ClientToken
-from app.hh_integration.common import HHUrls
+from hh_service.client import ClientSession, ClientToken
+from hh_service.common import HHUrls
 
 oauth = OAuth()
 oauth_router = APIRouter(prefix="/auth", tags=["auth"])

@@ -11,10 +11,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.common.sqla import TableNameMixin
-from app.db.base import Base
-from app.hh_integration.negotiation.models import AutoApplyConfig
-from app.hh_integration.resume.models import Resume
+from .base import Base
+from .mixins import TableNameMixin
+from .negotiation import AutoApplyConfig
+from .resume import Resume
 
 
 class User(Base, TableNameMixin):

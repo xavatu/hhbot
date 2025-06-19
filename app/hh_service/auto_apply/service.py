@@ -3,12 +3,11 @@ from typing import Optional, Dict
 import aiohttp
 from fastapi import APIRouter, Depends
 
-from app.common.http_session import get_http_session
-from app.hh_integration.client.oauth import get_client_session
-from app.hh_integration.client.schemas import ClientSession
-from app.hh_integration.negotiation.schemas import Negotiation
-from app.hh_integration.negotiation.service import apply_vacancy
-from app.hh_integration.resume.service import get_similar_vacancies
+from hh_service.client.oauth import ClientSession, get_client_session
+from hh_service.negotiation import Negotiation
+from hh_service.negotiation.service import apply_vacancy
+from hh_service.resume.service import get_similar_vacancies
+from shared_utils.http_session import get_http_session
 
 auto_apply_router = APIRouter(prefix="/auto_apply", tags=["auto_apply"])
 

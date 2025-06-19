@@ -2,10 +2,10 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-import app.hh_integration.client.models  # noqa
-import app.hh_integration.negotiation.models  # noqa
-import app.hh_integration.resume.models  # noqa
-from app.db.base import Base
+import models.client  # noqa
+import models.negotiation  # noqa
+import models.resume  # noqa
+from models.base import Base
 
 TEST_DB_USER = "postgres"
 TEST_DB_PASSWORD = "postgres"

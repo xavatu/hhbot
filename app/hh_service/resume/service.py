@@ -3,13 +3,13 @@ from typing import Dict
 import aiohttp
 from fastapi import APIRouter, Depends
 
-from app.common.http_session import get_http_session
-from app.common.query_extra import query_extra, get_extra_params
-from app.hh_integration.client.oauth import get_client_session
-from app.hh_integration.client.schemas import ClientSession
-from app.hh_integration.common import HHUrls
+from hh_service.common import HHUrls
+from shared_utils.http_session import get_http_session
+from shared_utils.query_extra import get_extra_params, query_extra
 
 resume_router = APIRouter(prefix="/resumes", tags=["resume"])
+
+from hh_service.client.oauth import ClientSession, get_client_session
 
 
 @resume_router.get("/mine")

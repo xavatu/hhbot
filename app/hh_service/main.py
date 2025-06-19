@@ -1,6 +1,6 @@
 import asyncio
 
-from app.config import server
+from hh_service.config import server
 
 
 async def main():
