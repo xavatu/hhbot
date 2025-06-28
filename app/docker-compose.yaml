@@ -1,8 +1,27 @@
 version: '3.9'
 
 services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: hh_bot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "54321:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   hh-service:
     image: hh-service:latest
+    container_name: hh-service
     volumes:
       - ./shared_utils:/app/shared_utils
       - ./db:/app/db
@@ -12,14 +31,31 @@ services:
     environment:
       API_HOST: 0.0.0.0
       API_PORT: 8000
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: hh_bot
+    depends_on:
+      - postgres
+
   scheduler:
     image: scheduler:latest
+    container_name: scheduler
     volumes:
       - ./shared_utils:/app/shared_utils
       - ./db:/app/db
       - ./scheduler:/app/scheduler
-    ports:
-      - "8001:8001"
     environment:
-      API_HOST: 0.0.0.0
-      API_PORT: 8001
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: hh_bot
+    depends_on:
+      - redis
+      - hh-service
+      - postgres
+
+volumes:
+  pgdata:
