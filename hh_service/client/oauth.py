@@ -6,7 +6,7 @@ from db.models.client import User, Session
 from db.session import async_session
 from hh_service.client import ClientSession, ClientToken
 from hh_service.common import HHUrls
-from hh_service.config import host, port
+from hh_service.config import port
 
 oauth = OAuth()
 oauth_router = APIRouter(prefix="/auth", tags=["auth"])
@@ -82,7 +82,7 @@ async def login(request: Request, client_id: str, client_secret: str):
         name="hh",
         authorize_url=HHUrls.AUTHORIZE,
         authorize_params={
-            "redirect_uri": f"http://{host}:{port}/auth/callback"
+            "redirect_uri": f"http://localhost:{port}/auth/callback"
         },
         access_token_url=HHUrls.TOKEN,
         refresh_token_url=HHUrls.TOKEN,
