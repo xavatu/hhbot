@@ -1,3 +1,3 @@
-[submodule "fabric"]
-	path = fabric
-	url = https://github.com/Xavatu/fabric.git
+[submodule "app/fabric"]
+	path = app/fabric
+	url = git@github.com:xavatu/fabric.git

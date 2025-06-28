@@ -64,6 +64,7 @@ services:
       - ./shared_utils:/app/shared_utils
       - ./db:/app/db
       - ./admin_panel:/app/admin_panel
+      - ./fabric:/app/fabric
     ports:
       - "127.0.0.1:8001:8001"
     environment:
