@@ -1,3 +1,5 @@
+import os
+
 from aiohttp import ClientSession, CookieJar
 from celery import Celery
 from celery.schedules import crontab
@@ -6,13 +8,16 @@ from db.cruds.client import SessionCRUD
 from db.cruds.negotiation import AutoApplyConfigCRUD, FilterCRUD
 from db.session import async_session
 
+CRON_HOUR = int(os.getenv("AUTO_APPLY_CRON_HOUR", 10))
+CRON_MINUTE = int(os.getenv("AUTO_APPLY_CRON_MINUTE", 0))
+
 app = Celery("auto_apply", broker="redis://redis:6379/0")
 
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender: Celery, **kwargs):
     sender.add_periodic_task(
-        crontab(hour=14, minute=00),
+        crontab(hour=CRON_HOUR, minute=CRON_MINUTE),
         run_auto_apply_tasks_sync.s(),
         name="auto-apply-daily",
     )
