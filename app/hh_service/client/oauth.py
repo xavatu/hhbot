@@ -2,6 +2,8 @@ from authlib.integrations.starlette_client import OAuth
 from fastapi import Request, APIRouter, HTTPException, Depends
 from starlette.responses import RedirectResponse
 
+from db.models.client import User, Session
+from db.session import async_session
 from hh_service.client import ClientSession, ClientToken
 from hh_service.common import HHUrls
 
@@ -28,18 +30,21 @@ async def auth_callback(request: Request):
             status_code=400, detail="Client credentials not found"
         )
 
+    client_id = request.session["client_creds"]["client_id"]
+    client_secret = request.session["client_creds"]["client_secret"]
+
     token = await oauth.hh.authorize_access_token(
         request,
-        client_id=request.session["client_creds"]["client_id"],
-        client_secret=request.session["client_creds"]["client_secret"],
+        client_id=client_id,
+        client_secret=client_secret,
     )
 
     client_token = ClientToken(**token)
     code = request.query_params.get("code")
 
     request.session["client_session"] = ClientSession(
-        client_id=request.session["client_creds"]["client_id"],
-        client_secret=request.session["client_creds"]["client_secret"],
+        client_id=client_id,
+        client_secret=client_secret,
         code=code,
         token=client_token,
     ).model_dump()
@@ -47,12 +52,20 @@ async def auth_callback(request: Request):
     response = RedirectResponse(url="/docs")
     response.set_cookie(
         key="client_id",
-        value=request.session["client_creds"]["client_id"],
+        value=client_id,
         max_age=86400,
         httponly=True,
         secure=False,
         samesite="lax",
     )
+
+    user = User(client_id=client_id)
+    session = Session(user_id=client_id, session=request.cookies.get("session"))
+    async with async_session() as db_session:
+        db_session.add(user)
+        db_session.add(session)
+        await db_session.commit()
+
     del request.session["client_creds"]
     return response
 

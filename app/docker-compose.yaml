@@ -12,3 +12,14 @@ services:
     environment:
       API_HOST: 0.0.0.0
       API_PORT: 8000
+  scheduler:
+    image: scheduler:latest
+    volumes:
+      - ./shared_utils:/app/shared_utils
+      - ./db:/app/db
+      - ./scheduler:/app/scheduler
+    ports:
+      - "8001:8001"
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 8001

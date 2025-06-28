@@ -1,11 +1,10 @@
 from sqlalchemy import (
-    BigInteger,
     Integer,
     String,
-    Text,
     Boolean,
     ForeignKey,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -16,15 +15,15 @@ class Filter(Base, TableNameMixin):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True
     )
-    query: Mapped[str] = mapped_column(Text, nullable=False)
+    query: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
 
 class AutoApplyConfig(Base, TableNameMixin):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True
     )
-    user_id: Mapped[int] = mapped_column(
-        BigInteger,
+    user_id: Mapped[str] = mapped_column(
+        String,
         ForeignKey("user.client_id", ondelete="CASCADE"),
         nullable=False,
     )
