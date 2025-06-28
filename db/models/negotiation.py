@@ -42,3 +42,6 @@ class AutoApplyConfig(Base, TableNameMixin):
     max_applications: Mapped[int] = mapped_column(
         Integer, default=200, nullable=False
     )
+    similar_vacancies: Mapped[bool] = mapped_column(
+        Boolean, default=True, nullable=False
+    )

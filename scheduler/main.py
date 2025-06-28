@@ -23,11 +23,16 @@ async def auto_apply_request(
     session: str,
     resume_id: str,
     max_applications: int,
+    similar_vacancies: bool,
     filter_query: dict,
 ):
     jar = CookieJar()
     jar.update_cookies({"client_id": client_id, "session": session})
-    params = {"resume_id": resume_id, "max_applications": max_applications}
+    params = {
+        "resume_id": resume_id,
+        "max_applications": max_applications,
+        "similar_vacancies": similar_vacancies,
+    }
 
     async with ClientSession(cookie_jar=jar) as http_session:
         async with http_session.post(
@@ -54,6 +59,7 @@ async def get_auto_apply_tasks():
             ).session
             resume_id = auto_apply_config.resume_id
             max_applications = auto_apply_config.max_applications
+            similar_vacancies = auto_apply_config.similar_vacancies
             query = (
                 await FilterCRUD.get_one(
                     db_session, {"id": auto_apply_config.filter_id}

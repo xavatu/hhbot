@@ -7,3 +7,4 @@ class HHUrls(StrEnum):
     TOKEN = "https://hh.ru/oauth/token"
     RESUMES = "https://api.hh.ru/resumes"
     NEGOTIATIONS = "https://api.hh.ru/negotiations"
+    VACANCIES = "https://api.hh.ru/vacancies"
