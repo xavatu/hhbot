@@ -36,7 +36,7 @@ async def auto_apply_request(
     params = {
         "resume_id": resume_id,
         "max_applications": max_applications,
-        "similar_vacancies": similar_vacancies,
+        "similar_vacancies": str(similar_vacancies),
     }
 
     async with ClientSession(cookie_jar=jar) as http_session:
