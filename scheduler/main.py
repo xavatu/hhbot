@@ -72,7 +72,12 @@ async def get_auto_apply_tasks():
             ).query
             results.append(
                 await auto_apply_request(
-                    client_id, session, resume_id, max_applications, query
+                    client_id,
+                    session,
+                    resume_id,
+                    max_applications,
+                    similar_vacancies,
+                    query,
                 )
             )
     return results
