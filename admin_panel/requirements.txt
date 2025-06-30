@@ -1,6 +1,7 @@
 annotated-types==0.7.0
 anyio==4.9.0
 asyncpg==0.30.0
+croniter==6.0.0
 click==8.2.1
 fastapi==0.115.14
 greenlet==3.2.3
@@ -14,3 +15,6 @@ starlette==0.46.2
 typing-inspection==0.4.1
 typing_extensions==4.14.0
 uvicorn==0.34.3
+python-dateutil==2.9.0.post0
+pytz==2025.2
+six==1.17.0

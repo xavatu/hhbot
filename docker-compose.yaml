@@ -57,19 +57,60 @@ services:
       - postgres
       - alembic
 
-  scheduler:
+  scheduler-api:
     build:
       context: .
       dockerfile: ./scheduler/Dockerfile
-    container_name: scheduler
+    container_name: scheduler-api
+    volumes:
+      - ./db:/app/db
+      - ./scheduler:/app/scheduler
+      - ./fabric:/app/fabric
+    ports:
+      - "127.0.0.1:8002:8002"
+    environment:
+      <<: *db-env
+      API_HOST: 0.0.0.0
+      API_PORT: 8002
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    command: python api/main.py
+    depends_on:
+      - redis
+      - hh-service
+
+  scheduler-worker:
+    build:
+      context: .
+      dockerfile: ./scheduler/Dockerfile
+    container_name: scheduler-worker
     volumes:
       - ./db:/app/db
       - ./scheduler:/app/scheduler
       - ./fabric:/app/fabric
     environment:
       <<: *db-env
-      AUTO_APPLY_CRON_HOUR: 10
-      AUTO_APPLY_CRON_MINUTE: 0
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    command: celery -A scheduler.tasks worker --loglevel=info
+    depends_on:
+      - redis
+      - hh-service
+
+  scheduler-beat:
+    build:
+      context: .
+      dockerfile: ./scheduler/Dockerfile
+    container_name: scheduler-beat
+    volumes:
+      - ./db:/app/db
+      - ./scheduler:/app/scheduler
+      - ./fabric:/app/fabric
+    environment:
+      <<: *db-env
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    command: celery -A scheduler.tasks beat --scheduler redbeat.RedBeatScheduler --loglevel=info
     depends_on:
       - redis
       - hh-service

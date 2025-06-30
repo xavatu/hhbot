@@ -9,6 +9,3 @@ RUN pip install --no-cache-dir -r ./scheduler/requirements.txt
 
 ENV PYTHONPATH="/app"
 WORKDIR /app/scheduler
-
-RUN chmod +x ./entrypoint.sh
-ENTRYPOINT ["./entrypoint.sh"]

@@ -7,7 +7,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import Base
+from .base import Base, CronSchedule
 from .mixins import TableNameMixin
 
 
@@ -45,3 +45,4 @@ class AutoApplyConfig(Base, TableNameMixin):
     similar_vacancies: Mapped[bool] = mapped_column(
         Boolean, default=True, nullable=False
     )
+    cron_schedule: Mapped[str] = mapped_column(CronSchedule, nullable=False)
