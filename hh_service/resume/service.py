@@ -3,9 +3,9 @@ from typing import Dict
 import aiohttp
 from fastapi import APIRouter, Depends
 
-from hh_service.common import HHUrls
-from shared_utils.http_session import get_http_session
-from shared_utils.query_extra import get_extra_params, query_extra
+from hh_service.common.http_session import get_http_session
+from hh_service.common.query_extra import get_extra_params, query_extra
+from hh_service.common.urls import HHUrls
 
 resume_router = APIRouter(prefix="/resumes", tags=["resume"])
 

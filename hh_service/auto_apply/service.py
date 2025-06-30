@@ -4,11 +4,11 @@ import aiohttp
 from fastapi import APIRouter, Depends
 
 from hh_service.client.oauth import ClientSession, get_client_session
+from hh_service.common.http_session import get_http_session
 from hh_service.negotiation import Negotiation
 from hh_service.negotiation.service import apply_vacancy
 from hh_service.resume.service import get_similar_vacancies
 from hh_service.vacancies.service import get_vacancies
-from shared_utils.http_session import get_http_session
 
 auto_apply_router = APIRouter(prefix="/auto_apply", tags=["auto_apply"])
 

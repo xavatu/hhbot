@@ -5,7 +5,7 @@ from starlette.responses import RedirectResponse
 from db.models.client import User, Session
 from db.session import async_session
 from hh_service.client import ClientSession, ClientToken
-from hh_service.common import HHUrls
+from hh_service.common.urls import HHUrls
 from hh_service.config import port
 
 oauth = OAuth()

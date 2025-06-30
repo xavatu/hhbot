@@ -23,7 +23,6 @@ services:
     image: hh-service:latest
     container_name: hh-service
     volumes:
-      - ./shared_utils:/app/shared_utils
       - ./db:/app/db
       - ./hh_service:/app/hh_service
     ports:
@@ -43,9 +42,9 @@ services:
     image: scheduler:latest
     container_name: scheduler
     volumes:
-      - ./shared_utils:/app/shared_utils
       - ./db:/app/db
       - ./scheduler:/app/scheduler
+      - ./fabric:/app/fabric
     environment:
       DB_USER: postgres
       DB_PASSWORD: postgres
@@ -63,7 +62,6 @@ services:
     image: admin-panel:latest
     container_name: admin-panel
     volumes:
-      - ./shared_utils:/app/shared_utils
       - ./db:/app/db
       - ./admin_panel:/app/admin_panel
       - ./fabric:/app/fabric

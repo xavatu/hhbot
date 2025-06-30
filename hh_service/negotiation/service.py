@@ -2,9 +2,9 @@ import aiohttp
 from fastapi import APIRouter, Depends
 
 from hh_service.client.oauth import ClientSession, get_client_session
-from hh_service.common import HHUrls
+from hh_service.common.http_session import get_http_session
+from hh_service.common.urls import HHUrls
 from hh_service.negotiation import Negotiation
-from shared_utils.http_session import get_http_session
 
 negotiation_router = APIRouter(prefix="/negotiations", tags=["negotiation"])
 

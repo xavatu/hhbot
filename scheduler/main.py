@@ -4,14 +4,19 @@ from aiohttp import ClientSession, CookieJar
 from celery import Celery
 from celery.schedules import crontab
 
-from db.cruds.client import SessionCRUD
-from db.cruds.negotiation import AutoApplyConfigCRUD, FilterCRUD
+from db.models import Session, Filter, AutoApplyConfig
 from db.session import async_session
+from fabric.cruds.base import CRUDBase
 
 CRON_HOUR = int(os.getenv("AUTO_APPLY_CRON_HOUR", 10))
 CRON_MINUTE = int(os.getenv("AUTO_APPLY_CRON_MINUTE", 0))
 
 app = Celery("auto_apply", broker="redis://redis:6379/0")
+
+
+SessionCRUD = CRUDBase(Session)
+FilterCRUD = CRUDBase(Filter)
+AutoApplyConfigCRUD = CRUDBase(AutoApplyConfig)
 
 
 @app.on_after_configure.connect
