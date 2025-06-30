@@ -1,3 +1,10 @@
+x-db-env: &db-env
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_NAME: hh_bot
+
 services:
   redis:
     image: redis:latest
@@ -17,8 +24,25 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  alembic:
+    build:
+      context: .
+      dockerfile: ./alembic/Dockerfile
+    container_name: alembic
+    command: upgrade head
+    volumes:
+      - ./db:/app/db
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+    environment:
+      <<: *db-env
+    depends_on:
+      - postgres
+
   hh-service:
-    image: hh-service:latest
+    build:
+      context: .
+      dockerfile: ./hh_service/Dockerfile
     container_name: hh-service
     volumes:
       - ./db:/app/db
@@ -26,38 +50,34 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     environment:
+      <<: *db-env
       API_HOST: 0.0.0.0
       API_PORT: 8000
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: hh_bot
     depends_on:
       - postgres
+      - alembic
 
   scheduler:
-    image: scheduler:latest
+    build:
+      context: .
+      dockerfile: ./scheduler/Dockerfile
     container_name: scheduler
     volumes:
       - ./db:/app/db
       - ./scheduler:/app/scheduler
       - ./fabric:/app/fabric
     environment:
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: hh_bot
+      <<: *db-env
       AUTO_APPLY_CRON_HOUR: 10
       AUTO_APPLY_CRON_MINUTE: 0
     depends_on:
       - redis
       - hh-service
-      - postgres
 
   admin-panel:
-    image: admin-panel:latest
+    build:
+      context: .
+      dockerfile: ./admin_panel/Dockerfile
     container_name: admin-panel
     volumes:
       - ./db:/app/db
@@ -66,15 +86,12 @@ services:
     ports:
       - "127.0.0.1:8001:8001"
     environment:
+      <<: *db-env
       API_HOST: 0.0.0.0
       API_PORT: 8001
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: hh_bot
     depends_on:
       - postgres
+      - alembic
 
 volumes:
   pgdata:
