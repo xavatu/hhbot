@@ -33,10 +33,13 @@ async def get_resumes(
 @query_extra()
 async def get_similar_vacancies(
     resume_id: str,
+    page: int = 0,
+    per_page: int = 100,
     extra_params: Dict = Depends(get_extra_params),
     client_session: ClientSession = Depends(get_client_session),
     http_session: aiohttp.ClientSession = Depends(get_http_session),
 ):
+    extra_params.update(page=page, per_page=per_page)
     result = await http_session.get(
         HHUrls.RESUMES + f"/{resume_id}/similar_vacancies",
         params=extra_params,
