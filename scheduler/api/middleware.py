@@ -35,7 +35,7 @@ class SyncRedBeatMiddleware(BaseHTTPMiddleware):
         )
 
         db_task_names = set(db_tasks.keys())
-        to_add = db_task_names - redis_task_names
+        to_add = db_task_names  # force update
         to_remove = redis_task_names - db_task_names
 
         for task_name in to_add:
