@@ -59,6 +59,7 @@ async def get_already_applied(
 ) -> set[str]:
     get_next_negotiations = partial(
         get_next,
+        per_page=500,
         coroutine=get_negotiations,
         client_session=client_session,
         http_session=http_session,
