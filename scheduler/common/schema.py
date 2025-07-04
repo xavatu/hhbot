@@ -34,7 +34,6 @@ class AutoApplyRedBeatTask(AutoApplyConfigSchema):
             task="tasks.run_auto_apply_task_sync",
             schedule=self.celery_crontab,
             args=[
-                self.user_id,
                 self.session_id,
                 self.resume_id,
                 self.filter_id,
