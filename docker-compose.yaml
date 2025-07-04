@@ -23,6 +23,12 @@ services:
       - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -h localhost" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
 
   alembic:
     build:
@@ -37,7 +43,9 @@ services:
     environment:
       <<: *db-env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+        restart: true
 
   hh-service:
     build:
@@ -54,8 +62,11 @@ services:
       API_HOST: 0.0.0.0
       API_PORT: 8000
     depends_on:
-      - postgres
-      - alembic
+      postgres:
+        condition: service_healthy
+        restart: true
+      alembic:
+        condition: service_completed_successfully
 
   scheduler-api:
     build:
@@ -76,8 +87,10 @@ services:
       REDIS_PORT: 6379
     command: python api/main.py
     depends_on:
-      - redis
-      - hh-service
+      redis:
+        condition: service_started
+      hh-service:
+        condition: service_started
 
   scheduler-worker:
     build:
@@ -94,8 +107,10 @@ services:
       REDIS_PORT: 6379
     command: celery -A scheduler.tasks worker --loglevel=info
     depends_on:
-      - redis
-      - hh-service
+      redis:
+        condition: service_started
+      hh-service:
+        condition: service_started
 
   scheduler-beat:
     build:
@@ -112,8 +127,10 @@ services:
       REDIS_PORT: 6379
     command: celery -A scheduler.tasks beat --scheduler redbeat.RedBeatScheduler --loglevel=info
     depends_on:
-      - redis
-      - hh-service
+      redis:
+        condition: service_started
+      hh-service:
+        condition: service_started
 
   admin-panel:
     build:
@@ -131,8 +148,11 @@ services:
       API_HOST: 0.0.0.0
       API_PORT: 8001
     depends_on:
-      - postgres
-      - alembic
+      postgres:
+        condition: service_healthy
+        restart: true
+      alembic:
+        condition: service_completed_successfully
 
 volumes:
   pgdata:
