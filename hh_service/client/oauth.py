@@ -19,7 +19,6 @@ oauth_router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def get_client_session(request: Request):
-    print(request.session)
     if "client_session" not in request.session:
         raise HTTPException(status_code=401, detail="Unauthorized")
 

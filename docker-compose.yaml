@@ -125,6 +125,7 @@ services:
       <<: *db-env
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      BEAT_MAX_LOOP_INTERVAL: 5
     command: celery -A scheduler.tasks beat --scheduler redbeat.RedBeatScheduler --loglevel=info
     depends_on:
       redis:
