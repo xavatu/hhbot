@@ -5,14 +5,13 @@ from .config import celery_app, sync_session
 
 
 def auto_apply_request(
-    client_id: str,
     session: str,
     resume_id: str,
     max_applications: int,
     similar_vacancies: bool,
     filter_query: dict,
 ):
-    cookies = {"client_id": client_id, "session": session}
+    cookies = {"session": session}
     params = {
         "resume_id": resume_id,
         "max_applications": max_applications,
@@ -30,7 +29,6 @@ def auto_apply_request(
 
 
 def run_single_auto_apply_task(
-    user_id,
     session_id,
     resume_id,
     filter_id,
@@ -40,12 +38,10 @@ def run_single_auto_apply_task(
     with sync_session() as db_session:
         session_obj = db_session.get(Session, session_id)
         filter_obj = db_session.get(Filter, filter_id)
-        client_id = user_id
         session_val = session_obj.session
         query = filter_obj.query
 
         result = auto_apply_request(
-            client_id,
             session_val,
             resume_id,
             max_applications,
@@ -58,7 +54,6 @@ def run_single_auto_apply_task(
 
 @celery_app.task(name="tasks.run_auto_apply_task_sync")
 def run_auto_apply_task_sync(
-    user_id,
     session_id,
     resume_id,
     filter_id,
@@ -66,7 +61,6 @@ def run_auto_apply_task_sync(
     similar_vacancies,
 ):
     return run_single_auto_apply_task(
-        user_id,
         session_id,
         resume_id,
         filter_id,

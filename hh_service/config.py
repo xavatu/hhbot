@@ -7,8 +7,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 host = os.getenv("API_HOST", "localhost")
 port = os.getenv("API_PORT", "8000")
-secret_key = os.getenv("SECRET_KEY", "secret-string")
 port = int(port)
+secret_key = os.getenv("SECRET_KEY", "secret-string")
+session_max_age = os.getenv("SESSION_MAX_AGE", 14 * 24 * 60 * 60)
 app_title = "HHBOT"
 app_version = "0.0"
 
