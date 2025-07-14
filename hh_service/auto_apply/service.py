@@ -1,6 +1,5 @@
 import asyncio
 from functools import partial
-from itertools import islice  # noqa
 from typing import Optional, AsyncIterator, Callable, Awaitable
 
 import aiohttp
@@ -19,28 +18,16 @@ from hh_service.resume.service import get_similar_vacancies
 from hh_service.vacancies.service import get_vacancies
 
 auto_apply_router = APIRouter(prefix="/auto_apply", tags=["auto_apply"])
-default_negotiation_message = (
-    "Добрый день! Вакансия показалась мне очень интересной. "
-    "Если Вас заинтересует моя кандидатура, пожалуйста, свяжитесь со мной в Telegram: @xavatu."
-)
-
-
-def make_negotiation(
-    resume_id, vacancy_id, message=default_negotiation_message
-):
-    return Negotiation(
-        resume_id=resume_id, vacancy_id=vacancy_id, message=message
-    )
 
 
 async def get_next(
     continuation_token: Optional[str],
     *,
-    coroutine: Callable[..., Awaitable[dict]],
+    get_next_page: Callable[..., Awaitable[dict]],
     **kwargs,
 ) -> dict:
     page = int(continuation_token) if continuation_token is not None else 0
-    return await coroutine(page=page, **kwargs)
+    return await get_next_page(page=page, **kwargs)
 
 
 async def extract_data(
@@ -60,7 +47,7 @@ async def get_already_applied(
     get_next_negotiations = partial(
         get_next,
         per_page=200,
-        coroutine=get_negotiations,
+        get_next_page=get_negotiations,
         client_session=client_session,
         http_session=http_session,
     )
@@ -75,6 +62,7 @@ async def auto_apply(
     http_session: aiohttp.ClientSession,
     max_applications: int = 200,
     similar_vacancies: bool = True,
+    message: str = "",
 ) -> int:
     already_applied = await get_already_applied(client_session, http_session)
     get_vacancies_func = (
@@ -84,7 +72,7 @@ async def auto_apply(
     )
     get_next_vacancies = partial(
         get_next,
-        coroutine=get_vacancies_func,
+        get_next_page=get_vacancies_func,
         extra_params=extra_params,
         client_session=client_session,
         http_session=http_session,
@@ -101,28 +89,30 @@ async def auto_apply(
             if len(tail) >= need
             else tail + await anext(sequence_chunks, [])
         )
-
         if not vacancies:
             break
 
         filtered = [
-            x
-            for x in vacancies
-            if not x["has_test"] and x["id"] not in already_applied
+            vacancy
+            for vacancy in vacancies
+            if not vacancy["has_test"] and vacancy["id"] not in already_applied
         ]
         print(f"{success_count=} {need=} {len(vacancies)=} {len(filtered)=}")
-
         if not filtered:
             continue
 
         head, tail = filtered[:need], filtered[need:]
-        negotiations = [make_negotiation(resume_id, v["id"]) for v in head]
-
+        negotiations = [
+            Negotiation(
+                resume_id=resume_id, vacancy_id=v["id"], message=message
+            )
+            for v in head
+        ]
         results = await asyncio.gather(
-            *[
-                apply_vacancy(n, client_session, http_session)
-                for n in negotiations
-            ],
+            *(
+                apply_vacancy(negotiation, client_session, http_session)
+                for negotiation in negotiations
+            ),
             return_exceptions=True,
         )
         for exception in filter(lambda x: isinstance(x, Exception), results):
@@ -139,6 +129,7 @@ async def run_auto_apply(
     extra_params: dict,
     max_applications: Optional[int] = 200,
     similar_vacancies: bool = True,
+    message: str = "",
     client_session: ClientSession = Depends(get_client_session),
     http_session: aiohttp.ClientSession = Depends(get_http_session),
 ):
@@ -149,6 +140,7 @@ async def run_auto_apply(
         http_session=http_session,
         max_applications=max_applications,
         similar_vacancies=similar_vacancies,
+        message=message,
     )
     return {
         "detail": "Auto apply completed",

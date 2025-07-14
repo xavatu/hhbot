@@ -46,3 +46,4 @@ class AutoApplyConfig(Base, TableNameMixin):
         Boolean, default=True, nullable=False
     )
     cron_schedule: Mapped[str] = mapped_column(CronSchedule, nullable=False)
+    message: Mapped[str] = mapped_column(String, nullable=True)

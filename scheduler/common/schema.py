@@ -39,6 +39,7 @@ class AutoApplyRedBeatTask(AutoApplyConfigSchema):
                 self.filter_id,
                 self.max_applications,
                 self.similar_vacancies,
+                self.message,
             ],
             app=app_celery,
         )

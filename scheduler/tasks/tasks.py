@@ -9,6 +9,7 @@ def auto_apply_request(
     resume_id: str,
     max_applications: int,
     similar_vacancies: bool,
+    message: str,
     filter_query: dict,
 ):
     cookies = {"session": session}
@@ -16,6 +17,7 @@ def auto_apply_request(
         "resume_id": resume_id,
         "max_applications": max_applications,
         "similar_vacancies": str(similar_vacancies),
+        "message": message,
     }
 
     response = requests.post(
@@ -34,6 +36,7 @@ def run_single_auto_apply_task(
     filter_id,
     max_applications,
     similar_vacancies,
+    message,
 ):
     with sync_session() as db_session:
         session_obj = db_session.get(Session, session_id)
@@ -47,6 +50,7 @@ def run_single_auto_apply_task(
             max_applications,
             similar_vacancies,
             query,
+            message,
         )
     print(result)
     return result
@@ -59,6 +63,7 @@ def run_auto_apply_task_sync(
     filter_id,
     max_applications,
     similar_vacancies,
+    message,
 ):
     return run_single_auto_apply_task(
         session_id,
@@ -66,4 +71,5 @@ def run_auto_apply_task_sync(
         filter_id,
         max_applications,
         similar_vacancies,
+        message,
     )
