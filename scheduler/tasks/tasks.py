@@ -49,8 +49,8 @@ def run_single_auto_apply_task(
             resume_id,
             max_applications,
             similar_vacancies,
-            query,
             message,
+            query,
         )
     print(result)
     return result
