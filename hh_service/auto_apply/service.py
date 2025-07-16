@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from functools import partial
 from typing import Optional, AsyncIterator, Callable, Awaitable
 
@@ -12,6 +13,7 @@ from hh_service.common.async_pagination import (
     async_chunks,
 )
 from hh_service.common.http_session import get_http_session
+from hh_service.common.logger import logger
 from hh_service.negotiation import Negotiation
 from hh_service.negotiation.service import apply_vacancy, get_negotiations
 from hh_service.resume.service import get_similar_vacancies
@@ -97,7 +99,9 @@ async def auto_apply(
             for vacancy in vacancies
             if not vacancy["has_test"] and vacancy["id"] not in already_applied
         ]
-        print(f"{success_count=} {need=} {len(vacancies)=} {len(filtered)=}")
+        logger.debug(
+            f"{success_count=} {need=} {len(vacancies)=} {len(filtered)=}"
+        )
         if not filtered:
             continue
 
@@ -116,7 +120,10 @@ async def auto_apply(
             return_exceptions=True,
         )
         for exception in filter(lambda x: isinstance(x, Exception), results):
-            print(exception.__dict__)
+            try:
+                raise exception
+            except Exception:
+                logger.error(traceback.format_exc())
         applied = sum(1 for res in results if not isinstance(res, Exception))
         success_count += applied
 
