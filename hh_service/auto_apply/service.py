@@ -45,6 +45,7 @@ async def extract_data(
 async def get_already_applied(
     client_session: ClientSession,
     http_session: aiohttp.ClientSession,
+    resume_id: str = None,
 ) -> set[str]:
     get_next_negotiations = partial(
         get_next,
@@ -54,7 +55,16 @@ async def get_already_applied(
         http_session=http_session,
     )
     sequence = AsyncItemPaged(get_next_negotiations, extract_data)
-    return set([item["id"] async for item in sequence])
+    negotiations = [item async for item in sequence]
+    if resume_id is None:
+        return set([item["id"] for item in negotiations])
+    return set(
+        [
+            item["id"]
+            for item in negotiations
+            if item["resume"] and item["resume"]["id"] == resume_id
+        ]
+    )
 
 
 async def auto_apply(
@@ -66,7 +76,9 @@ async def auto_apply(
     similar_vacancies: bool = True,
     message: str = "",
 ) -> int:
-    already_applied = await get_already_applied(client_session, http_session)
+    already_applied = await get_already_applied(
+        client_session, http_session, resume_id
+    )
     get_vacancies_func = (
         partial(get_similar_vacancies, resume_id=resume_id)
         if similar_vacancies
