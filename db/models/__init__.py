@@ -1,13 +1,11 @@
 from .base import Base
-from .client import User, Session
+from .client import Client, Session
 from .negotiation import Filter, AutoApplyConfig
-from .resume import Resume
 
 __all__ = [
-    "User",
+    "Client",
     "Session",
     "Filter",
     "AutoApplyConfig",
-    "Resume",
     "Base",
 ]

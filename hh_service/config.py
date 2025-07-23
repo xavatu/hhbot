@@ -3,13 +3,21 @@ import os
 import uvicorn
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
-from starlette.middleware.sessions import SessionMiddleware
+
+from hh_service.client.sessions import SessionMiddleware
 
 host = os.getenv("API_HOST", "localhost")
 port = os.getenv("API_PORT", "8000")
 port = int(port)
 secret_key = os.getenv("SECRET_KEY", "secret-string")
 session_max_age = os.getenv("SESSION_MAX_AGE", 14 * 24 * 60 * 60)
+session_max_age = int(session_max_age)
+
+CLIENT_ID = os.getenv("CLIENT_ID")
+assert CLIENT_ID is not None
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+assert CLIENT_SECRET is not None
+
 app_title = "HHBOT"
 app_version = "0.0"
 
@@ -51,6 +59,8 @@ def custom_openapi():
 
 
 app.openapi = custom_openapi
-app.add_middleware(SessionMiddleware, secret_key=secret_key)
+app.add_middleware(
+    SessionMiddleware, secret_key=secret_key, max_age=session_max_age
+)
 config = uvicorn.Config(app, host=host, port=port)
 server = uvicorn.Server(config)

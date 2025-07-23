@@ -3,6 +3,7 @@ from sqlalchemy import (
     String,
     Boolean,
     ForeignKey,
+    UUID,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -22,18 +23,14 @@ class AutoApplyConfig(Base, TableNameMixin):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True
     )
-    user_id: Mapped[str] = mapped_column(
+    client_id: Mapped[str] = mapped_column(
         String,
-        ForeignKey("user.client_id", ondelete="CASCADE"),
+        ForeignKey("client.id", ondelete="CASCADE"),
         nullable=False,
     )
-    resume_id: Mapped[str] = mapped_column(
-        String,
-        ForeignKey("resume.resume_id", ondelete="CASCADE"),
-        nullable=False,
-    )
+    resume_id: Mapped[str] = mapped_column(String, nullable=False)
     session_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("session.id", ondelete="CASCADE"), nullable=False
+        UUID, ForeignKey("session.id", ondelete="CASCADE"), nullable=False
     )
     filter_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("filter.id", ondelete="CASCADE"), nullable=False

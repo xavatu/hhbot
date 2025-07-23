@@ -28,9 +28,11 @@ class SyncRedBeatMiddleware(BaseHTTPMiddleware):
         await redis_conn.aclose()
 
         redis_task_names = set(
-            k.decode().replace("redbeat:", "")
-            if isinstance(k, bytes)
-            else k.replace("redbeat:", "")
+            (
+                k.decode().replace("redbeat:", "")
+                if isinstance(k, bytes)
+                else k.replace("redbeat:", "")
+            )
             for k in keys
         )
 
@@ -40,7 +42,9 @@ class SyncRedBeatMiddleware(BaseHTTPMiddleware):
 
         for task_name in to_add:
             config = db_tasks[task_name]
+            print(config.__dict__)
             task = AutoApplyRedBeatTask.model_validate(config)
+            print(task.__dict__)
             task.add_to_redbeat(celery_app)
 
         for task_name in to_remove:

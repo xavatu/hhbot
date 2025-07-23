@@ -1,45 +1,40 @@
 from datetime import datetime
-from typing import List
 
 from sqlalchemy import (
-    Integer,
     ForeignKey,
     TIMESTAMP,
     func,
     String,
+    UUID,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import Base
+from .base import Base, UUIDString
 from .mixins import TableNameMixin
-from .negotiation import AutoApplyConfig
-from .resume import Resume
 
 
-class User(Base, TableNameMixin):
-    client_id: Mapped[str] = mapped_column(String, primary_key=True)
+class Client(Base, TableNameMixin):
+    id: Mapped[str] = mapped_column(String, primary_key=True)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.now()
-    )
-    sessions: Mapped[List["Session"]] = relationship(
-        cascade="all, delete-orphan"
-    )
-    resumes: Mapped[List["Resume"]] = relationship(cascade="all, delete-orphan")
-    auto_apply_configs: Mapped[List["AutoApplyConfig"]] = relationship(
-        cascade="all, delete-orphan"
     )
 
 
 class Session(Base, TableNameMixin):
-    id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True
-    )
-    user_id: Mapped[str] = mapped_column(
+    id: Mapped[str] = mapped_column(UUIDString, primary_key=True)
+    client_id: Mapped[str] = mapped_column(
         String,
-        ForeignKey("user.client_id", ondelete="CASCADE"),
+        ForeignKey("client.id", ondelete="CASCADE"),
         nullable=False,
     )
-    session: Mapped[str] = mapped_column(String, nullable=False)
+    token: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    state: Mapped[str] = mapped_column(UUIDString, unique=True, nullable=True)
+    status: Mapped[str] = mapped_column(
+        String, default="pending", nullable=False
+    )
+    encoded: Mapped[str] = mapped_column(String, nullable=True)
+    mode: Mapped[str] = mapped_column(String, default="web", nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.now()
     )

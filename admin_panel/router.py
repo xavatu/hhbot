@@ -1,14 +1,13 @@
-from db.models.client import User, Session
+from db.models.client import Client, Session
 from db.models.negotiation import Filter, AutoApplyConfig
-from db.models.resume import Resume
 from db.session import get_db_session
 from fabric.router.default import generate_default_router
 
-user_router = generate_default_router(
-    model=User,
+client_router = generate_default_router(
+    model=Client,
     get_session=get_db_session,
-    prefix="/users",
-    tags=["users"],
+    prefix="/clients",
+    tags=["clients"],
     exclude_fields=["client_id"],
     allowed_methods=[
         "get_all",
@@ -55,18 +54,6 @@ auto_apply_config_router = generate_default_router(
         "create",
         "update",
         "patch",
-        "delete",
-    ],
-)
-resume_router = generate_default_router(
-    model=Resume,
-    get_session=get_db_session,
-    prefix="/resumes",
-    tags=["resumes"],
-    allowed_methods=[
-        "get_all",
-        "get_one",
-        "create",
         "delete",
     ],
 )

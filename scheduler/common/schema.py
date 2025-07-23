@@ -1,16 +1,31 @@
+import uuid
+
 from celery import Celery
 from celery.schedules import crontab
+from pydantic import ConfigDict, field_validator
 from redbeat import RedBeatSchedulerEntry
 
 from db.models import AutoApplyConfig
 from fabric.schemas.generate import generate_pydantic_schema_from_model
 
-AutoApplyConfigSchema = generate_pydantic_schema_from_model(AutoApplyConfig)
+AutoApplyConfigSchema = generate_pydantic_schema_from_model(
+    AutoApplyConfig,
+    config=ConfigDict(
+        json_encoders={uuid.UUID: lambda v: str(v)}, from_attributes=True
+    ),
+)
 
 
 class AutoApplyRedBeatTask(AutoApplyConfigSchema):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    session_id: str
+    resume_id: str
+
+    @field_validator("session_id", "resume_id", mode="before")
+    @classmethod
+    def uuid_to_str(cls, v):
+        if isinstance(v, uuid.UUID):
+            return str(v)
+        return v
 
     @property
     def task_name(self):

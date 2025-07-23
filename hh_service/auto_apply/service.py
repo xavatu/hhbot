@@ -1,12 +1,12 @@
 import asyncio
 import traceback
 from functools import partial
-from typing import Optional, AsyncIterator, Callable, Awaitable
+from typing import Optional, AsyncIterator, Callable, Awaitable, Dict
 
 import aiohttp
 from fastapi import APIRouter, Depends
 
-from hh_service.client.oauth import ClientSession, get_client_session
+from hh_service.client.oauth import get_client_session
 from hh_service.common.async_pagination import (
     AsyncList,
     AsyncItemPaged,
@@ -43,7 +43,7 @@ async def extract_data(
 
 
 async def get_already_applied(
-    client_session: ClientSession,
+    client_session,
     http_session: aiohttp.ClientSession,
     resume_id: str = None,
 ) -> set[str]:
@@ -70,7 +70,7 @@ async def get_already_applied(
 async def auto_apply(
     resume_id: str,
     extra_params: dict,
-    client_session: ClientSession,
+    client_session,
     http_session: aiohttp.ClientSession,
     max_applications: int = 200,
     similar_vacancies: bool = True,
@@ -149,7 +149,7 @@ async def run_auto_apply(
     max_applications: Optional[int] = 200,
     similar_vacancies: bool = True,
     message: str = "",
-    client_session: ClientSession = Depends(get_client_session),
+    client_session: Dict = Depends(get_client_session),
     http_session: aiohttp.ClientSession = Depends(get_http_session),
 ):
     success_count = await auto_apply(

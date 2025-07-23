@@ -41,7 +41,7 @@ def run_single_auto_apply_task(
     with sync_session() as db_session:
         session_obj = db_session.get(Session, session_id)
         filter_obj = db_session.get(Filter, filter_id)
-        session_val = session_obj.session
+        session_val = session_obj.encoded
         query = filter_obj.query
 
         result = auto_apply_request(
