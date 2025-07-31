@@ -5,7 +5,7 @@ from sqlalchemy import (
     TIMESTAMP,
     func,
     String,
-    UUID,
+    Integer,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -28,6 +28,7 @@ class Session(Base, TableNameMixin):
         ForeignKey("client.id", ondelete="CASCADE"),
         nullable=False,
     )
+    telegram_id: Mapped[int] = mapped_column(Integer, nullable=True)
     token: Mapped[dict] = mapped_column(JSONB, nullable=False)
     state: Mapped[str] = mapped_column(UUIDString, unique=True, nullable=True)
     status: Mapped[str] = mapped_column(

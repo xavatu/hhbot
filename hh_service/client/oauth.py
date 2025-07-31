@@ -72,6 +72,7 @@ async def login(
     request.session["state"] = state
     request.session["client_id"] = CLIENT_ID
     request.session["status"] = "pending"
+    telegram_id = request.query_params.get("id")
 
     async with async_session() as db_session:
         try:
@@ -82,6 +83,7 @@ async def login(
         session = Session(
             id=session_id,
             client_id=CLIENT_ID,
+            telegram_id=telegram_id,
             token={},
             state=state,
             status="pending",

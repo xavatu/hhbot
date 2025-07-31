@@ -137,6 +137,29 @@ services:
       hh-service:
         condition: service_started
 
+  tgbot:
+    build:
+      context: .
+      dockerfile: ./tgbot/Dockerfile
+    container_name: tgbot
+    volumes:
+      - ./db:/app/db
+      - ./tgbot:/app/tgbot
+    environment:
+      <<: *db-env
+      API_TOKEN: YOUR_BOT_TOKEN
+      OAUTH_URL: https://yourdomain.com/auth
+      OAUTH_TIMEOUT: 60
+      SESSION_MAX_AGE: 1209600
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+        restart: true
+      alembic:
+        condition: service_completed_successfully
+
   admin-panel:
     build:
       context: .
@@ -161,7 +184,7 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: hh-nginx
+    container_name: nginx
     ports:
       - "80:80"
       - "443:443"
