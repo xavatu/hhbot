@@ -153,6 +153,7 @@ services:
       SESSION_MAX_AGE: 1209600
       REDIS_HOST: redis
       REDIS_PORT: 6379
+    command: python api/main.py
     depends_on:
       postgres:
         condition: service_healthy
