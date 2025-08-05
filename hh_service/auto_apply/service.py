@@ -4,6 +4,7 @@ from functools import partial
 from typing import Optional, AsyncIterator, Callable, Awaitable, Dict
 
 import aiohttp
+from aiohttp import ClientResponseError
 from fastapi import APIRouter, Depends
 
 from hh_service.client.oauth import get_client_session
@@ -17,7 +18,10 @@ from hh_service.common.logger import logger
 from hh_service.negotiation import Negotiation
 from hh_service.negotiation.service import apply_vacancy, get_negotiations
 from hh_service.resume.service import get_similar_vacancies
-from hh_service.vacancies.service import get_vacancies
+from hh_service.vacancies.service import (
+    get_vacancies,
+    get_vacancies_by_saved_search,
+)
 
 auto_apply_router = APIRouter(prefix="/auto_apply", tags=["auto_apply"])
 
@@ -68,35 +72,23 @@ async def get_already_applied(
 
 
 async def auto_apply(
+    get_next_vacancies,
     resume_id: str,
-    extra_params: dict,
-    client_session,
-    http_session: aiohttp.ClientSession,
     max_applications: int = 200,
-    similar_vacancies: bool = True,
     message: str = "",
+    client_session=Depends(),
+    http_session: aiohttp.ClientSession = Depends(),
 ) -> int:
     already_applied = await get_already_applied(
         client_session, http_session, resume_id
-    )
-    get_vacancies_func = (
-        partial(get_similar_vacancies, resume_id=resume_id)
-        if similar_vacancies
-        else partial(get_vacancies)
-    )
-    get_next_vacancies = partial(
-        get_next,
-        get_next_page=get_vacancies_func,
-        extra_params=extra_params,
-        client_session=client_session,
-        http_session=http_session,
     )
     sequence = AsyncItemPaged(get_next_vacancies, extract_data)
     sequence_chunks = async_chunks(sequence, max_applications)
     success_count = 0
     tail = []
+    limit_exceeded = False
 
-    while success_count < max_applications:
+    while success_count < max_applications and not limit_exceeded:
         need = max_applications - success_count
         vacancies = (
             tail
@@ -132,10 +124,18 @@ async def auto_apply(
             return_exceptions=True,
         )
         for exception in filter(lambda x: isinstance(x, Exception), results):
+            payload_json = getattr(exception, "payload_json", {})
             try:
                 raise exception
-            except Exception:
-                logger.error(traceback.format_exc())
+            except ClientResponseError:
+                logger.error(traceback.format_exc(), payload_json=payload_json)
+            error_type = payload_json.get("errors", [{}])[0].get("value", None)
+            if error_type == "already_applied":
+                ...
+            if error_type == "limit_exceeded":
+                limit_exceeded = True
+                break
+
         applied = sum(1 for res in results if not isinstance(res, Exception))
         success_count += applied
 
@@ -152,14 +152,59 @@ async def run_auto_apply(
     client_session: Dict = Depends(get_client_session),
     http_session: aiohttp.ClientSession = Depends(get_http_session),
 ):
-    success_count = await auto_apply(
-        resume_id=resume_id,
+    get_vacancies_func = (
+        partial(get_similar_vacancies, resume_id=resume_id)
+        if similar_vacancies
+        else partial(get_vacancies)
+    )
+    get_next_vacancies = partial(
+        get_next,
+        get_next_page=get_vacancies_func,
         extra_params=extra_params,
         client_session=client_session,
         http_session=http_session,
+    )
+    success_count = await auto_apply(
+        get_next_vacancies=get_next_vacancies,
+        resume_id=resume_id,
         max_applications=max_applications,
-        similar_vacancies=similar_vacancies,
         message=message,
+        client_session=client_session,
+        http_session=http_session,
+    )
+    return {
+        "detail": "Auto apply completed",
+        "resume_id": resume_id,
+        "success_count": success_count,
+    }
+
+
+@auto_apply_router.post("/by_saved_search")
+async def run_auto_apply_by_saved_search(
+    saved_search_id: str,
+    resume_id: str,
+    max_applications: Optional[int] = 200,
+    message: str = "",
+    client_session: Dict = Depends(get_client_session),
+    http_session: aiohttp.ClientSession = Depends(get_http_session),
+):
+    get_vacancies_func = partial(
+        get_vacancies_by_saved_search,
+        saved_search_id=saved_search_id,
+    )
+    get_next_vacancies = partial(
+        get_next,
+        get_next_page=get_vacancies_func,
+        client_session=client_session,
+        http_session=http_session,
+    )
+    success_count = await auto_apply(
+        get_next_vacancies=get_next_vacancies,
+        resume_id=resume_id,
+        max_applications=max_applications,
+        message=message,
+        client_session=client_session,
+        http_session=http_session,
     )
     return {
         "detail": "Auto apply completed",

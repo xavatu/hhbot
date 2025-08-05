@@ -8,3 +8,4 @@ class HHUrls(StrEnum):
     RESUMES = "https://api.hh.ru/resumes"
     NEGOTIATIONS = "https://api.hh.ru/negotiations"
     VACANCIES = "https://api.hh.ru/vacancies"
+    SAVED_SEARCHES = "https://api.hh.ru/saved_searches"

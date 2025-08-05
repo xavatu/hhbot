@@ -33,3 +33,66 @@ async def get_vacancies(
         result.raise_for_status()
     result_json = await result.json()
     return result_json
+
+
+@vacancy_router.get("/saved_searches")
+async def get_saved_searches(
+    page: int = 0,
+    per_page: int = 10,
+    client_session: Dict = Depends(get_client_session),
+    http_session: aiohttp.ClientSession = Depends(get_http_session),
+):
+    result = await http_session.get(
+        HHUrls.SAVED_SEARCHES + "/vacancies",
+        params=dict(page=page, per_page=per_page),
+        headers={
+            "Authorization": f"Bearer {client_session["token"]["access_token"]}"
+        },
+    )
+    if not result.ok:
+        result.raise_for_status()
+    result_json = await result.json()
+    return result_json
+
+
+@vacancy_router.get("/saved_searches/{id}")
+async def get_saved_search(
+    id: str,
+    client_session: Dict = Depends(get_client_session),
+    http_session: aiohttp.ClientSession = Depends(get_http_session),
+):
+    result = await http_session.get(
+        HHUrls.SAVED_SEARCHES + f"/vacancies/{id}",
+        headers={
+            "Authorization": f"Bearer {client_session["token"]["access_token"]}"
+        },
+    )
+    if not result.ok:
+        result.raise_for_status()
+    result_json = await result.json()
+    return result_json
+
+
+@vacancy_router.get("/by_saved_search")
+async def get_vacancies_by_saved_search(
+    saved_search_id: str,
+    page: int = 0,
+    per_page: int = 100,
+    client_session: Dict = Depends(get_client_session),
+    http_session: aiohttp.ClientSession = Depends(get_http_session),
+):
+    saved_search = await get_saved_search(
+        saved_search_id, client_session, http_session
+    )
+    search_url = saved_search["items"]["url"]
+    result = await http_session.get(
+        search_url,
+        params=dict(page=page, per_page=per_page),
+        headers={
+            "Authorization": f"Bearer {client_session["token"]["access_token"]}"
+        },
+    )
+    if not result.ok:
+        result.raise_for_status()
+    result_json = await result.json()
+    return result_json

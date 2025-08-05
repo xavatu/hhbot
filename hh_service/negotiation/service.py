@@ -1,6 +1,7 @@
 from typing import Dict
 
 import aiohttp
+from aiohttp import ClientResponseError
 from fastapi import APIRouter, Depends
 
 from hh_service.client.oauth import get_client_session
@@ -45,6 +46,14 @@ async def apply_vacancy(
         },
     )
     if not result.ok:
-        result.raise_for_status()
+        try:
+            payload_json = await result.json()
+        except Exception as e:
+            raise e
+        try:
+            result.raise_for_status()
+        except ClientResponseError as e:
+            e.payload_json = payload_json
+            raise e
     result_text = await result.text()
     return {"text": result_text}

@@ -48,14 +48,15 @@ class AutoApplyRedBeatTask(AutoApplyConfigSchema):
             name=self.task_name,
             task="tasks.run_auto_apply_task_sync",
             schedule=self.celery_crontab,
-            args=[
-                self.session_id,
-                self.resume_id,
-                self.filter_id,
-                self.max_applications,
-                self.similar_vacancies,
-                self.message,
-            ],
+            kwargs={
+                "session_id": self.session_id,
+                "resume_id": self.resume_id,
+                "filter_id": self.filter_id,
+                "saved_search_id": self.saved_search_id,
+                "max_applications": self.max_applications,
+                "similar_vacancies": self.similar_vacancies,
+                "message": self.message,
+            },
             app=app_celery,
         )
         entry.save()

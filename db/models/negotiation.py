@@ -33,8 +33,9 @@ class AutoApplyConfig(Base, TableNameMixin):
         UUID, ForeignKey("session.id", ondelete="CASCADE"), nullable=False
     )
     filter_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("filter.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("filter.id", ondelete="CASCADE"), nullable=True
     )
+    saved_search_id: Mapped[str] = mapped_column(String, nullable=True)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     max_applications: Mapped[int] = mapped_column(
         Integer, default=200, nullable=False
